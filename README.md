@@ -33,3 +33,9 @@ To run the tests:
 ```bash
 pytest
 ```
+
+
+## TO DO Before Beta
+1. Mypy
+2. Black
+3. Documentation
