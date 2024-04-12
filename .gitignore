@@ -10,3 +10,4 @@ venv
 dist
 build
 run-venv/
+.mypy_cache/
