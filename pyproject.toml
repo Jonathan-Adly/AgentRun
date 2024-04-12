@@ -25,4 +25,4 @@ CI = "https://github.com/jonathan-adly/agentrun/actions"
 
 
 [project.optional-dependencies]
-test = ["pytest"]
+test = ["pytest", "pytest-cov", "mypy"]
