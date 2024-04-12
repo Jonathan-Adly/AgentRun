@@ -1,0 +1,28 @@
+[project]
+name = "agentrun"
+version = "0.1"
+description = "The easiest way to run AI or user generated python code safely in a docker container"
+readme = "README.md"
+requires-python = ">=3.8"
+authors = [{name = "Jonathan Adly", email = "gadly0123@gmail.com"}]
+license = {text = "Apache-2.0"}
+classifiers = [
+    "License :: OSI Approved :: Apache Software License"
+]
+dependencies = [
+ "docker", "RestrictedPython", 
+]
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project.urls]
+Homepage = "https://github.com/jonathan-adly/agentrun"
+Changelog = "https://github.com/jonathan-adly/agentrun/releases"
+Issues = "https://github.com/jonathan-adly/agentrun/issues"
+CI = "https://github.com/jonathan-adly/agentrun/actions"
+
+
+[project.optional-dependencies]
+test = ["pytest"]
