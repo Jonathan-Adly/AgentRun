@@ -3,7 +3,7 @@ name = "agentrun"
 version = "0.1"
 description = "The easiest way to run AI or user generated python code safely in a docker container"
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.10"
 authors = [{name = "Jonathan Adly", email = "gadly0123@gmail.com"}]
 license = {text = "Apache-2.0"}
 classifiers = [

@@ -9,3 +9,4 @@ venv
 .DS_Store
 dist
 build
+run-venv/
