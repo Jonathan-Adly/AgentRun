@@ -1,6 +1,6 @@
 [project]
 name = "agentrun"
-version = "v0.1"
+version = "v0.1.1"
 description = "The easiest way to run AI or user generated python code safely in a docker container"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -14,8 +14,15 @@ dependencies = [
 ]
 
 [build-system]
-requires = ["setuptools"]
+requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+include-package-data = false
+
+[tool.setuptools.packages.find]
+include = ["agentrun*"]
+exclude = ["agentrun-api*", "docs*", "examples*", "tests*", ".github*"]
 
 [project.urls]
 Homepage = "https://github.com/jonathan-adly/agentrun"
@@ -25,4 +32,4 @@ CI = "https://github.com/jonathan-adly/agentrun/actions"
 
 
 [project.optional-dependencies]
-test = ["pytest", "pytest-cov", "mypy"]
+test = ["pytest", "pytest-cov", "pytest-benchmark", "mypy"]

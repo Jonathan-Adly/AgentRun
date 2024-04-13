@@ -364,6 +364,10 @@ class AgentRun:
 
         finally:
             if container:
-                self.clean_up(container, script_name, dependencies)
+                # run clean up in a seperate thread to avoid blocking the main thread
+                thread = Thread(
+                    target=self.clean_up, args=(container, script_name, dependencies)
+                )
+                thread.start()
 
         return output

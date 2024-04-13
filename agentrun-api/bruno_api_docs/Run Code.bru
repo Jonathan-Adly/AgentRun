@@ -1,0 +1,17 @@
+meta {
+  name: Run Code
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{scheme}}{{host}}/v1/run/
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "code": "print('hello, world!')"
+  }
+}

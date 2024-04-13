@@ -232,3 +232,19 @@ def test_execute_code_in_container_with_wrong_container_name():
     )
     output = runner.execute_code_in_container("print('Hello, World!')")
     assert output == "Container with name wrong-container-name not found."
+
+
+def execute_code_in_container_benchmark(docker_container):
+    runner = AgentRun(
+        container_name=docker_container.name,
+    )
+    code = "import numpy as np\nprint(np.array([1, 2, 3]))"
+    output = runner.execute_code_in_container(code)
+    return output
+
+
+def test_dependency_benchmark(benchmark, docker_container):
+    result = benchmark(
+        execute_code_in_container_benchmark, docker_container=docker_container
+    )
+    assert result == "[1 2 3]\n"

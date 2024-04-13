@@ -1,4 +1,4 @@
-# Agentrun : Run AI generated code safely
+# Agentrun-API : Run AI generated code safely
 
 [![PyPI](https://img.shields.io/pypi/v/agentrun.svg)](https://pypi.org/project/agentrun/)
 [![Tests](https://github.com/jonathan-adly/agentrun/actions/workflows/test.yml/badge.svg)](https://github.com/jonathan-adly/agentrun/actions/workflows/test.yml)
@@ -10,6 +10,8 @@ Agentrun is a Python library that makes it a breeze to run python code safely fr
 
 Agentrun automatically install and uninstall dependencies, limits resource consumption, checks code safety, and set execution timeouts. It has >97% test coverage with full static typing and only 2 dependecies. 
 
+**This is a fastapi wrapper over the library with docker-compose already configured for you.** This where you should start, unless you are very comfortable with docker and want to use the package with your custom docker setup.
+
 ## Key Features
 
 - **Safe code execution**: Agentrun checks the generated code for dangerous elements before execution
@@ -20,41 +22,30 @@ Agentrun automatically install and uninstall dependencies, limits resource consu
 - **Automatic Cleanups**: Agentrun cleans any artificats created by the code generated 
 - **Comes with a REST API**: Hate setting up docker? Agentrun comes with already configured docker setup for self-hosting.
 
+## REST API usage
+```bash
+git clone https://github.com/Jonathan-Adly/agentrun-api
+cd agentrun-api
+cp .env.example .env.dev
+docker-compose up -d --build
+```
 
-If you want to use your own docker configuration, use this package. If you want an already configured docker setup and API that is ready for self-hosting. Please see here: https://github.com/Jonathan-Adly/agentrun-api
+- Visit your browser at localhost:8000 for API swagger documenation.
 
-**We Highly recommend using the REST API with already configured docker as a standalone service. It is available here: https://github.com/Jonathan-Adly/agentrun-api** 
+
 
 ## Get Started in Minutes
 
 There are two ways to use agentrun - depending on your needs. With pip if you want to use your own docker setup, or you can directly use it as a rest API as a standalone service (recommended).
 
-1. Install Agentrun with a single command via pip (you will need to configure your own docker setup)
+> Want to install the library via pip and set up your own docker? Visit here: https://pypi.org/project/agentrun/
 
-```bash
-pip install agentrun
-```
+Install the agentrun REST api from github and get going immediately
 
-Now, let's see AgentRun in action with a simple example:
-
-```Python
-from agentrun import AgentRun
-
-runner = AgentRun(container_name="my_container") # container should be running
-code_from_llm = get_code_from_llm(prompt) # "print('hello, world!')"
-
-result = runner.execute_code_in_container(code_from_llm)
-print(result)
-#> "Hello, world!" 
-```
-
-Worried about spinning up docker containers? No problem. 
-
-2. Install the agentrun REST api from github and get going immediately
 ```bash
 git clone https://github.com/Jonathan-Adly/agentrun-api
 cd agentrun-api
-cp .example.env .dev.env
+cp .env.example .env.dev
 docker-compose up -d --build
 ```
 
@@ -94,13 +85,13 @@ Customize   | Fully                     | Partially             |
 
 Now, let's see AgentRun in action with something more complicated. We will take advantage of function calling and agentrun, to have LLMs write and execute code on the fly to solve arbitrary tasks. You can find the full code under `examples/function_calling.py`
 
-We are using the REST API as it is recommend to seperate the code execution service from the rest of our infrastructure.
+We will be using the REST API to seperate the code execution service from the rest of our infrastructure.
 
 1. Install needed packages. 
 ```bash
 pip install openai requests
 ```
-> We are using openai her to keep the code simple with minimal depenencies, but agentrun works with any LLM out of the box. All what's required is for the LLM to return a code snippet.
+> We are using OpenAI here to keep the code simple with minimal depenencies, but agentrun works with any LLM out of the box. All what's required is for the LLM to return a code snippet.
 >
 > FYI: OpenAI assistant tool ` code_interpreter` can execute code. Agentrun is a transparent, open-source version that can work with any LLM.
 
@@ -273,6 +264,13 @@ result = runner.execute_code_in_container(code_from_llm)
 print(result)
 #> "Hello, world!" 
 ```
+
+## Deployment 
+
+For deployment in production you will need to setup Nginx or similar and SSL. Again, we highly recommend to run this as an API standalone server away from your infrastructure. There is no such things as 100% sandboxed Python code.
+
+A hosted version (paid) is coming soon. 
+
 
 ## Development
 
