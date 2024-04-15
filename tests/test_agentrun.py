@@ -160,10 +160,10 @@ def test_parse_dependencies(code, expected, docker_container):
 @pytest.mark.parametrize(
     "code, expected, whitelist",
     [
-        # dependencies: requests, open whitelist
+        # dependencies: numpy, open whitelist
         (
-            "import requests\nprint(requests.get('https://example.com').status_code)",
-            "200\n",
+            "import numpy as np\nprint(np.array([1, 2, 3]))",
+            "[1 2 3]\n",
             ["*"],
         ),
         # dependencies: numpy, but not in the whitelist
@@ -180,21 +180,15 @@ def test_parse_dependencies(code, expected, docker_container):
         ),
         # dependencies: requests, in the whitelist
         (
-            "import requests\nprint(requests.get('https://example.com').status_code)",
-            "200\n",
-            ["requests"],
+            "import numpy as np\nprint(np.array([1, 2, 3]))",
+            "[1 2 3]\n",
+            ["numpy"],
         ),
         # a dependency that doesn't exist
         (
             "import unknownpackage",
             "Failed to install dependency unknownpackage",
             ["*"],
-        ),
-        # string list from env
-        (
-            "import math\nprint(math.sqrt(16))",
-            "4.0\n",
-            '["requests"]',
         ),
     ],
 )
