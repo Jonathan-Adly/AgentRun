@@ -234,17 +234,38 @@ def test_execute_code_in_container_with_wrong_container_name():
     assert output == "Container with name wrong-container-name not found."
 
 
-def execute_code_in_container_benchmark(docker_container):
+def execute_code_in_container_benchmark(docker_container, code):
     runner = AgentRun(
         container_name=docker_container.name,
     )
-    code = "import numpy as np\nprint(np.array([1, 2, 3]))"
+
     output = runner.execute_code_in_container(code)
     return output
 
 
 def test_dependency_benchmark(benchmark, docker_container):
     result = benchmark(
-        execute_code_in_container_benchmark, docker_container=docker_container
+        execute_code_in_container_benchmark,
+        docker_container=docker_container,
+        code="import numpy as np\nprint(np.array([1, 2, 3]))",
     )
     assert result == "[1 2 3]\n"
+
+
+def test_exception_benchmark(benchmark, docker_container):
+    result = benchmark(
+        execute_code_in_container_benchmark,
+        docker_container=docker_container,
+        code="print(f'{1/0}')",
+    )
+    ends_with = "ZeroDivisionError: division by zero\n"
+    assert result.endswith(ends_with)
+
+
+def test_vanilla_benchmark(benchmark, docker_container):
+    result = benchmark(
+        execute_code_in_container_benchmark,
+        docker_container=docker_container,
+        code="print('Hello, World!')",
+    )
+    assert result == "Hello, World!\n"

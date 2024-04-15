@@ -10,7 +10,6 @@ Agentrun is a Python library that makes it easy to run Python code safely from l
 
 Agentrun automatically installs and uninstalls dependencies, limits resource consumption, checks code safety, and sets execution timeouts. It has 97% test coverage with full static typing and only two dependencies.
 
-
 ## Why?
 
 Giving code execution ability to LLMs is a massive upgrade. Consider the following user query: `what is 12345 * 54321?` or even something more ambitious like `what is the average daily move of Apple stock during the last week?`? With code execution it is possible for LLMs to answer both accurately by executing code.
@@ -35,11 +34,19 @@ This package gives code execution ability to **any LLM** in a single line of cod
 - **Dependency Management**: Complete control on what dependencies are allowed to install
 - **Automatic Cleanups**: Agentrun cleans any artifacts created by the generated code.
 - **Comes with a REST API**: Hate setting up docker? Agentrun comes with already configured docker setup for self-hosting.
-
+- **Transparent Exception Handling**: Agentrun returns the same exact output as running Python in your system - exceptions and tracebacks included.
+- **Optimized Performance**:  Agentrun doesn't spin a new docker container on every run by default. The code executes as fast as native execution + installing dependencies. (coming soon: Dependency caching)
 
 If you want to use your own Docker configuration, install this package with pip and simply initialize Agentrun with a running Docker container. Additionally, you can use an already configured Docker Compose setup and API that is ready for self-hosting by cloning this repo.
 
 Unless you are comfortable with Docker, **we highly recommend using the REST API with the already configured Docker as a standalone service.**
+
+## Example output
+
+Here are a few examples using the Agentrun with benchmarking. The code is available in `/examples`
+
+
+
 
 
 ## Get Started in Minutes
