@@ -160,10 +160,10 @@ def test_parse_dependencies(code, expected, docker_container):
 @pytest.mark.parametrize(
     "code, expected, whitelist",
     [
-        # dependencies: numpy, open whitelist
+        # dependencies: arrow, open whitelist
         (
-            "import numpy as np\nprint(np.array([1, 2, 3]))",
-            "[1 2 3]\n",
+            "import arrow\nfixed_date = arrow.get('2023-04-15T12:00:00')\nprint(fixed_date.format('YYYY-MM-DD HH:mm:ss'))",
+            "2023-04-15 12:00:00\n",
             ["*"],
         ),
         # dependencies: numpy, but not in the whitelist
