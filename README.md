@@ -41,11 +41,10 @@ If you want to use your own Docker configuration, install this package with pip 
 
 Unless you are comfortable with Docker, **we highly recommend using the REST API with the already configured Docker as a standalone service.**
 
-## Example output
 
-Here are a few examples using the Agentrun with benchmarking. The code is available in `/examples`
+## Benchmarks
 
-
+![benchmarks](<assets/Screenshot 2024-04-15 at 5.33.23 PM.png>)
 
 
 
