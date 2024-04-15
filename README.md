@@ -34,18 +34,11 @@ This package gives code execution ability to **any LLM** in a single line of cod
 - **Dependency Management**: Complete control on what dependencies are allowed to install
 - **Automatic Cleanups**: Agentrun cleans any artifacts created by the generated code.
 - **Comes with a REST API**: Hate setting up docker? Agentrun comes with already configured docker setup for self-hosting.
-- **Transparent Exception Handling**: Agentrun returns the same exact output as running Python in your system - exceptions and tracebacks included.
-- **Optimized Performance**:  Agentrun doesn't spin a new docker container on every run by default. The code executes as fast as native execution + installing dependencies. (coming soon: Dependency caching)
+- **Transparent Exception Handling**: Agentrun returns the same exact output as running Python in your system - exceptions and tracebacks included. No cryptic docker messages.
 
 If you want to use your own Docker configuration, install this package with pip and simply initialize Agentrun with a running Docker container. Additionally, you can use an already configured Docker Compose setup and API that is ready for self-hosting by cloning this repo.
 
 Unless you are comfortable with Docker, **we highly recommend using the REST API with the already configured Docker as a standalone service.**
-
-
-## Benchmarks
-
-![benchmarks](<assets/Screenshot 2024-04-15 at 5.33.23 PM.png>)
-
 
 
 ## Get Started in Minutes
@@ -310,6 +303,14 @@ result = runner.execute_code_in_container(code_from_llm)
 print(result)
 #> "Hello, world!" 
 ```
+
+
+## Benchmarks
+
+Agentrun Median execution time is ~220ms without dependencies. Dependency installing is usually the bottleneck and depends on the size of package and if the package has many dependencies.
+
+![benchmarks](<assets/benchmarks.png>)
+
 
 ## Development
 
