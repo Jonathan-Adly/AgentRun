@@ -26,6 +26,7 @@ class AgentRun:
     Args:
         container_name: Name of the Docker container to use
         dependencies_whitelist: List of whitelisted dependencies to install. By default, all dependencies are allowed.
+        cached_dependencies: List of dependencies to cache in the container (default: [])
         cpu_quota: CPU quota in microseconds (default: 50,000)
         default_timeout: Default timeout in seconds (default: 20)
         memory_limit: Memory limit for the container (default: 100m)
@@ -37,6 +38,7 @@ class AgentRun:
         self,
         container_name,
         dependencies_whitelist=["*"],
+        cached_dependencies=[],
         cpu_quota=50000,
         default_timeout=20,
         memory_limit="100m",
@@ -52,6 +54,19 @@ class AgentRun:
         self.dependencies_whitelist = dependencies_whitelist
         # this is to allow a mock client to be passed in for testing if docker is not available (not implemented yet)
         self.client = client or docker.from_env()
+        self.cached_dependencies = cached_dependencies
+        for dep in self.cached_dependencies:
+            self.dependencies_whitelist.append(dep)
+            self.dependencies_whitelist = list(set(self.dependencies_whitelist))
+            # install the cached dependencies in the container in a separate thread
+            thread = Thread(
+                target=self.install_dependencies,
+                args=(
+                    self.client.containers.get(self.container_name),
+                    self.cached_dependencies,
+                ),
+            )
+            thread.start()
 
     class CommandTimeout(Exception):
         pass
@@ -230,7 +245,17 @@ class AgentRun:
                 if dep not in self.dependencies_whitelist:
                     return f"Dependency: {dep} is not in the whitelist."
 
+        exit_code, output = self.execute_command_in_container(
+            container, "pip list", timeout=3
+        )
+        installed_packages = output.splitlines()
+        installed_packages = [
+            line.split()[0].lower() for line in installed_packages if " " in line
+        ]
+
         for dep in dependencies:
+            if dep.lower() in installed_packages:
+                continue
             command = f"pip install --user {dep}"
             exit_code, output = self.execute_command_in_container(
                 container, command, timeout=120
@@ -249,6 +274,9 @@ class AgentRun:
             Success message or error message
         """
         for dep in dependencies:
+            # do not uninstall dependencies that are cached_dependencies
+            if dep in self.cached_dependencies:
+                continue
             command = f"pip uninstall -y {dep}"
             exit_code, output = self.execute_command_in_container(
                 container, command, timeout=120
