@@ -18,15 +18,15 @@ class AgentRun:
     """Class to execute Python code in an isolated Docker container.
 
     Example usage:
-        from agentrun import AgentRun
-        runner = AgentRun(container_name="my_container") # container should be running
-        result = runner.execute_code_in_container("print('Hello, world!')")
+        from agentrun import AgentRun\n
+        runner = AgentRun(container_name="my_container") # container should be running\n
+        result = runner.execute_code_in_container("print('Hello, world!')")\n
         print(result)
 
     Args:
         container_name: Name of the Docker container to use
         dependencies_whitelist: List of whitelisted dependencies to install. By default, all dependencies are allowed.
-        cached_dependencies: List of dependencies to cache in the container (default: [])
+        cached_dependencies: List of dependencies to cache in the container
         cpu_quota: CPU quota in microseconds (default: 50,000)
         default_timeout: Default timeout in seconds (default: 20)
         memory_limit: Memory limit for the container (default: 100m)
@@ -37,18 +37,14 @@ class AgentRun:
     def __init__(
         self,
         container_name,
-        dependencies_whitelist=None,
-        cached_dependencies=None,
+        dependencies_whitelist=["*"],
+        cached_dependencies=[],
         cpu_quota=50000,
         default_timeout=20,
         memory_limit="100m",
         memswap_limit="512m",
         client=None,
-    ):
-        if dependencies_whitelist is None:
-            dependencies_whitelist = ["*"]
-        if cached_dependencies is None:
-            cached_dependencies = []
+    ) -> None:
 
         self.cpu_quota = cpu_quota
         self.default_timeout = default_timeout
