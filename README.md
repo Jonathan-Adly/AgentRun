@@ -1,4 +1,4 @@
-# Agentrun: Run AI Generated Code Safely
+# AgentRun: Run AI Generated Code Safely
 
 [![PyPI](https://img.shields.io/pypi/v/agentrun.svg)](https://pypi.org/project/agentrun/)
 [![Tests](https://github.com/jonathan-adly/agentrun/actions/workflows/test.yml/badge.svg)](https://github.com/jonathan-adly/agentrun/actions/workflows/test.yml)
@@ -6,9 +6,9 @@
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://github.com/jonathan-adly/agentrun/blob/main/LICENSE)
 [![Twitter Follow](https://img.shields.io/twitter/follow/Jonathan_Adly_?style=social)](https://twitter.com/Jonathan_Adly_)
 
-Agentrun is a Python library that makes it easy to run Python code safely from large language models (LLMs) with a single line of code. Built on top of the Docker Python SDK and RestrictedPython, it provides a simple, transparent, and user-friendly API to manage isolated code execution.
+AgentRun is a Python library that makes it easy to run Python code safely from large language models (LLMs) with a single line of code. Built on top of the Docker Python SDK and RestrictedPython, it provides a simple, transparent, and user-friendly API to manage isolated code execution.
 
-Agentrun automatically installs and uninstalls dependencies, limits resource consumption, checks code safety, and sets execution timeouts. It has 97% test coverage with full static typing and only two dependencies.
+AgentRun automatically installs and uninstalls dependencies with optional caching, limits resource consumption, checks code safety, and sets execution timeouts. It has 97% test coverage with full static typing and only two dependencies.
 
 ## Why?
 
@@ -27,46 +27,27 @@ This package gives code execution ability to **any LLM** in a single line of cod
 
 ## Key Features
 
-- **Safe code execution**: Agentrun checks the generated code for dangerous elements before execution
+- **Safe code execution**: AgentRun checks the generated code for dangerous elements before execution
 - **Isolated Environment**: Code is executed in a fully isolated docker container
 - **Configurable Resource Management**: You can set how much compute resources the code can consume, with sane defaults
 - **Timeouts**: Set time limits on how long a script can take to run 
 - **Dependency Management**: Complete control on what dependencies are allowed to install
-- **Automatic Cleanups**: Agentrun cleans any artifacts created by the generated code.
-- **Comes with a REST API**: Hate setting up docker? Agentrun comes with already configured docker setup for self-hosting.
-- **Transparent Exception Handling**: Agentrun returns the same exact output as running Python in your system - exceptions and tracebacks included. No cryptic docker messages.
+- **Dependency Caching**: AgentRun gives you the ability to cache any dependency in advance in the docker container to optimize performance.
+- **Automatic Cleanups**: AgentRun cleans any artifacts created by the generated code.
+- **Comes with a REST API**: Hate setting up docker? AgentRun comes with already configured docker setup for self-hosting.
+- **Transparent Exception Handling**: AgentRun returns the same exact output as running Python in your system - exceptions and tracebacks included. No cryptic docker messages.
 
-If you want to use your own Docker configuration, install this package with pip and simply initialize Agentrun with a running Docker container. Additionally, you can use an already configured Docker Compose setup and API that is ready for self-hosting by cloning this repo.
+If you want to use your own Docker configuration, install this package with pip and simply initialize AgentRun with a running Docker container. Additionally, you can use an already configured Docker Compose setup and API that is ready for self-hosting by cloning this repo.
 
 Unless you are comfortable with Docker, **we highly recommend using the REST API with the already configured Docker as a standalone service.**
 
 
 ## Get Started in Minutes
 
-There are two ways to use Agentrun, depending on your needs: with pip for your own Docker setup, or directly as a REST API as a standalone service (recommended).
+There are two ways to use AgentRun, depending on your needs: with pip for your own Docker setup, or directly as a REST API as a standalone service (recommended).
 
-1. Install Agentrun with a single command via pip (you will need to configure your own Docker setup):
+1. **REST API**: Clone this repository and start immediately with a standalone REST API.
 
-```bash
-pip install agentrun
-```
-
-Now, let's see AgentRun in action with a simple example:
-
-```Python
-from agentrun import AgentRun
-
-runner = AgentRun(container_name="my_container") # container should be running
-code_from_llm = get_code_from_llm(prompt) # "print('hello, world!')"
-
-result = runner.execute_code_in_container(code_from_llm)
-print(result)
-#> "Hello, world!" 
-```
-
-Worried about spinning up Docker containers? No problem.
-
-2. Clone this repository and start immediately with a standalone REST API:
 ```bash
 git clone https://github.com/Jonathan-Adly/agentrun
 cd agentrun/agentrun-api
@@ -95,6 +76,26 @@ Or if you prefer the terminal.
 
 `curl -X POST http://localhost:8000/v1/run/ -H "Content-Type: application/json" -d '{"code": "print(\'hello, world!\')"}'`
 
+2. Install AgentRun with a single command via pip (you will need to configure your own Docker setup):
+
+```bash
+pip install agentrun
+```
+
+Now, let's see AgentRun in action with a simple example:
+
+```Python
+from agentrun import AgentRun
+
+runner = AgentRun(container_name="my_container") # container should be running
+code_from_llm = get_code_from_llm(prompt) # "print('hello, world!')"
+
+result = runner.execute_code_in_container(code_from_llm)
+print(result)
+#> "Hello, world!" 
+```
+
+
 
 Difference  | Python Package            | REST API              |
 ---------   | --------------            | -----------           |
@@ -108,11 +109,11 @@ Customize   | Fully                     | Partially             |
 
 ## Usage
 
-Now, let's see AgentRun in action with something more complicated. We will take advantage of function calling and agentrun, to have LLMs write and execute code on the fly to solve arbitrary tasks. You can find the full code under `examples/`
+Now, let's see AgentRun in action with something more complicated. We will take advantage of function calling and AgentRun, to have LLMs write and execute code on the fly to solve arbitrary tasks. You can find the full code under `examples/`
 
-First, we will install the needed packages. We are using mixtral here via groq to keep things fast and with minimal depenencies, but agentrun works with any LLM out of the box. All what's required is for the LLM to return a code snippet.
+First, we will install the needed packages. We are using mixtral here via groq to keep things fast and with minimal depenencies, but AgentRun works with any LLM out of the box. All what's required is for the LLM to return a code snippet.
 
-> FYI: OpenAI assistant tool `code_interpreter` can execute code. Agentrun is a transparent, open-source version that can work with any LLM.
+> FYI: OpenAI assistant tool `code_interpreter` can execute code. AgentRun is a transparent, open-source version that can work with any LLM.
 
 ```bash
 !pip install groq 
@@ -138,7 +139,7 @@ def execute_python_code(code: str) -> str:
 
 Next, we will setup our LLM function calling skeleton code. We need:
 
-1. An LLM client such Groq or OpenAI or Anthropic (alternatively, you can use liteLLm as wrapper)
+1. An LLM client such Groq or OpenAI or Anthropic (alternatively, you can use litellm as wrapper)
 2. The model you will use 
 3. Our code execution tool - that encourages the LLM model to send us python code to execute reliably
 
@@ -188,7 +189,7 @@ def chat_completion_request(messages, tools=None, tool_choice=None, model=GPT_MO
         return e
 ```
 
-Finally, we will set up a function that takes the user query and returns an answer. Using Agentrun to execute code when the LLM determines code execution is necesary to answer the question
+Finally, we will set up a function that takes the user query and returns an answer. Using AgentRun to execute code when the LLM determines code execution is necesary to answer the question
 
 ```python
 def get_answer(query):
@@ -245,7 +246,7 @@ average_move = moves.mean()
 print(f'{average_move:.2f}')
 ```
 
-That code was sent to agentrun, which outputted: 
+That code was sent to AgentRun, which outputted: 
 `'\r[*********************100%%**********************]  1 of 1 completed\n2.39'`
 
 Lastly, the output was sent to the LLM again to make human friendly. Giving us the final answer: $2.39
@@ -254,10 +255,14 @@ Lastly, the output was sent to the LLM again to make human friendly. Giving us t
 
 ## Customize
 
-Agentrun has sane defaults, but totally customizable. You can change:
+AgentRun has sane defaults, but totally customizable. You can change:
 
 1. dependencies_whitelist - by default any thing that can be pip installed is allowable.
-2. cpu_quota - the default is 50000. Here is GPT-4 explaining what does that mean.
+2. cached_dependencies - these are dependencies that are installed on the image on initialization, and stay there until the image is brought down. `[]` by default.
+
+> It will take longer to initialize the image with cached_dependencies, however subsequent runs using those dependencies would be a lot faster.
+
+3. cpu_quota - the default is 50000. Here is GPT-4 explaining what does that mean.
 
 > In Docker SDK, the cpu_quota parameter is used to limit CPU usage for a container. 
 > The value of cpu_quota specifies the amount of CPU time that the container is allowed to use in microseconds per scheduling period. 
@@ -290,6 +295,7 @@ runner = AgentRun(
 container_name="my_container",
 # only allowed to pip install requests
 dependencies_whitelist = ["requests"], # [] = no dependencies
+cached_dependencies = ["requests"],
 # 3 minutes timeout
 default_timeout = 3 * 60,  
 # how much RAM can the script use
@@ -307,7 +313,7 @@ print(result)
 
 ## Benchmarks
 
-Agentrun Median execution time is ~220ms without dependencies. Dependency installing is usually the bottleneck and depends on the size of package and if the package has many dependencies.
+AgentRun Median execution time is ~220ms without dependencies. Dependency installing is usually the bottleneck and depends on the size of package and if the package has many dependencies.
 
 ![benchmarks](<assets/benchmarks.png>)
 

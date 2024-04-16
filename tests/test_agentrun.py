@@ -158,30 +158,29 @@ def test_parse_dependencies(code, expected, docker_container):
 
 
 @pytest.mark.parametrize(
-    "code, expected, whitelist",
+    "code, expected, whitelist, cached",
     [
         # dependencies: arrow, open whitelist
         (
             "import arrow\nfixed_date = arrow.get('2023-04-15T12:00:00')\nprint(fixed_date.format('YYYY-MM-DD HH:mm:ss'))",
             "2023-04-15 12:00:00\n",
             ["*"],
+            ["requests"],
         ),
         # dependencies: numpy, but not in the whitelist
         (
             "import numpy as np\nprint(np.array([1, 2, 3]))",
             "Dependency: numpy is not in the whitelist.",
             ["pandas"],
+            [],
         ),
         # python built-in
-        (
-            "import math\nprint(math.sqrt(16))",
-            "4.0\n",
-            ["requests"],
-        ),
+        ("import math\nprint(math.sqrt(16))", "4.0\n", ["requests"], []),
         # dependencies: requests, in the whitelist
         (
             "import numpy as np\nprint(np.array([1, 2, 3]))",
             "[1 2 3]\n",
+            ["numpy"],
             ["numpy"],
         ),
         # a dependency that doesn't exist
@@ -189,13 +188,17 @@ def test_parse_dependencies(code, expected, docker_container):
             "import unknownpackage",
             "Failed to install dependency unknownpackage",
             ["*"],
+            [],
         ),
     ],
 )
-def test_execute_code_with_dependencies(code, expected, whitelist, docker_container):
+def test_execute_code_with_dependencies(
+    code, expected, whitelist, cached, docker_container
+):
     runner = AgentRun(
         container_name=docker_container.name,
         dependencies_whitelist=whitelist,
+        cached_dependencies=cached,
     )
     output = runner.execute_code_in_container(code)
     assert output == expected
@@ -219,37 +222,93 @@ def test_execute_code_in_container(code, expected, docker_container):
     assert output == expected
 
 
-# test with wrong container name
-def test_execute_code_in_container_with_wrong_container_name():
-    runner = AgentRun(
-        container_name="wrong-container-name",
-    )
-    output = runner.execute_code_in_container("print('Hello, World!')")
-    assert output == "Container with name wrong-container-name not found."
+def test_init_with_wrong_container_name(docker_container):
+    with pytest.raises(ValueError) as excinfo:
+        runner = AgentRun(container_name="wrong-container-name")
+
+    assert "Container wrong-container-name not found" in str(excinfo.value)
 
 
-def execute_code_in_container_benchmark(docker_container, code):
-    runner = AgentRun(
-        container_name=docker_container.name,
-    )
+def test_init_with_stopped_container(docker_container):
+    # stop the docker_container
+    docker_container.stop()
+    with pytest.raises(ValueError) as excinfo:
+        runner = AgentRun(container_name=docker_container.name)
 
+    assert f"Container {docker_container.name} is not running."
+    docker_container.start()
+
+
+def test_init_with_docker_not_running():
+    from unittest.mock import Mock, patch
+
+    # Create a mock client that raises an exception when ping is called
+    with patch("docker.DockerClient") as MockClient:
+        mock_client = MockClient.return_value
+        mock_client.ping.side_effect = docker.errors.DockerException(
+            "Docker daemon not available"
+        )
+
+        # Test that initializing AgentRun with this mock client raises ValueError
+        with pytest.raises(RuntimeError) as excinfo:
+            runner = AgentRun(container_name="any-name", client=mock_client)
+
+        assert (
+            "Failed to connect to Docker daemon. Please make sure Docker is running. Docker daemon not available"
+            in str(excinfo.value)
+        )
+
+
+def test_init_w_dependency_mismatch(docker_container):
+    with pytest.raises(ValueError) as excinfo:
+        runner = AgentRun(
+            container_name=docker_container.name,
+            dependencies_whitelist=[],
+            cached_dependencies=["requests"],
+        )
+    assert "Some cached dependencies are not in the whitelist." in str(excinfo.value)
+
+
+"""**benchmarking**"""
+
+
+def execute_code_in_container_benchmark(runner, code):
     output = runner.execute_code_in_container(code)
     return output
 
 
-def test_dependency_benchmark(benchmark, docker_container):
+def test_cached_dependency_benchmark(benchmark, docker_container):
+    runner = AgentRun(
+        container_name=docker_container.name,
+        cached_dependencies=["numpy"],
+    )
     result = benchmark(
         execute_code_in_container_benchmark,
-        docker_container=docker_container,
+        runner=runner,
         code="import numpy as np\nprint(np.array([1, 2, 3]))",
     )
     assert result == "[1 2 3]\n"
 
 
-def test_exception_benchmark(benchmark, docker_container):
+def test_dependency_benchmark(benchmark, docker_container):
+    runner = AgentRun(
+        container_name=docker_container.name,
+    )
     result = benchmark(
         execute_code_in_container_benchmark,
-        docker_container=docker_container,
+        runner=runner,
+        code="import requests\nprint(requests.get('https://example.com').status_code)",
+    )
+    assert result == "200\n"
+
+
+def test_exception_benchmark(benchmark, docker_container):
+    runner = AgentRun(
+        container_name=docker_container.name,
+    )
+    result = benchmark(
+        execute_code_in_container_benchmark,
+        runner=runner,
         code="print(f'{1/0}')",
     )
     ends_with = "ZeroDivisionError: division by zero\n"
@@ -257,9 +316,12 @@ def test_exception_benchmark(benchmark, docker_container):
 
 
 def test_vanilla_benchmark(benchmark, docker_container):
+    runner = AgentRun(
+        container_name=docker_container.name,
+    )
     result = benchmark(
         execute_code_in_container_benchmark,
-        docker_container=docker_container,
+        runner=runner,
         code="print('Hello, World!')",
     )
     assert result == "Hello, World!\n"

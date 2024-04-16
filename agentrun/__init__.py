@@ -37,14 +37,18 @@ class AgentRun:
     def __init__(
         self,
         container_name,
-        dependencies_whitelist=["*"],
-        cached_dependencies=[],
+        dependencies_whitelist=None,
+        cached_dependencies=None,
         cpu_quota=50000,
         default_timeout=20,
         memory_limit="100m",
         memswap_limit="512m",
         client=None,
     ):
+        if dependencies_whitelist is None:
+            dependencies_whitelist = ["*"]
+        if cached_dependencies is None:
+            cached_dependencies = []
 
         self.cpu_quota = cpu_quota
         self.default_timeout = default_timeout
@@ -55,21 +59,68 @@ class AgentRun:
         # this is to allow a mock client to be passed in for testing if docker is not available (not implemented yet)
         self.client = client or docker.from_env()
         self.cached_dependencies = cached_dependencies
-        for dep in self.cached_dependencies:
-            self.dependencies_whitelist.append(dep)
-            self.dependencies_whitelist = list(set(self.dependencies_whitelist))
-            # install the cached dependencies in the container in a separate thread
-            thread = Thread(
-                target=self.install_dependencies,
-                args=(
-                    self.client.containers.get(self.container_name),
-                    self.cached_dependencies,
-                ),
+
+        try:
+            self.client = client or docker.from_env()
+            self.client.ping()
+        except docker.errors.DockerException as e:
+            raise RuntimeError(
+                f"Failed to connect to Docker daemon. Please make sure Docker is running. {e}"
             )
-            thread.start()
+
+        try:
+            container = self.client.containers.get(self.container_name)
+            if container.status != "running":
+                raise ValueError(f"Container {self.container_name} is not running.")
+        except docker.errors.NotFound:
+            raise ValueError(f"Container {self.container_name} not found.")
+
+        if (
+            not self.is_everything_whitelisted()
+            and not self.validate_cached_dependencies()
+        ):
+            raise ValueError("Some cached dependencies are not in the whitelist.")
+
+        if self.cached_dependencies:
+            self.install_cached_dependencies()
 
     class CommandTimeout(Exception):
+        """Exception raised when a command execution times out."""
+
         pass
+
+    def is_everything_whitelisted(self) -> bool:
+        """
+        Check if everything is whitelisted.
+
+        Returns:
+            bool: True if everything is whitelisted, False otherwise.
+        """
+        return "*" in self.dependencies_whitelist
+
+    def validate_cached_dependencies(self) -> bool:
+        """
+        Validates the cached dependencies against the whitelist.
+
+        Returns:
+            bool: True if all cached dependencies are whitelisted, False otherwise.
+        """
+        if self.is_everything_whitelisted():
+            return True
+        return all(
+            dep in self.dependencies_whitelist for dep in self.cached_dependencies
+        )
+
+    def install_cached_dependencies(self) -> None:
+        """
+        Attempts to install cached dependencies into the specified Docker container.
+        Raises:
+            ValueError: If the dependencies could not be successfully installed.
+        """
+        container = self.client.containers.get(self.container_name)
+        output = self.install_dependencies(container, self.cached_dependencies)
+        if output != "Dependencies installed successfully.":
+            raise ValueError(output)
 
     def execute_command_in_container(
         self, container: Container, cmd: str, timeout: int
@@ -237,7 +288,7 @@ class AgentRun:
             Success message or error message
 
         """
-        everything_whitelisted = "*" in self.dependencies_whitelist
+        everything_whitelisted = self.is_everything_whitelisted()
 
         # Perform a pre-check to ensure all dependencies are in the whitelist (or everything is whitelisted)
         if not everything_whitelisted:
@@ -245,9 +296,8 @@ class AgentRun:
                 if dep not in self.dependencies_whitelist:
                     return f"Dependency: {dep} is not in the whitelist."
 
-        exit_code, output = self.execute_command_in_container(
-            container, "pip list", timeout=3
-        )
+        exec_log = container.exec_run(cmd="pip list", workdir="/code")
+        exit_code, output = exec_log.exit_code, exec_log.output.decode("utf-8")
         installed_packages = output.splitlines()
         installed_packages = [
             line.split()[0].lower() for line in installed_packages if " " in line
@@ -354,10 +404,8 @@ class AgentRun:
             if not safe:
                 return safety_message
 
-            try:
-                container = client.containers.get(self.container_name)
-            except docker.errors.NotFound:
-                return f"Container with name {self.container_name} not found."
+            container = client.containers.get(self.container_name)
+
             # update the container with the new limits
             container.update(
                 cpu_quota=self.cpu_quota,
@@ -367,12 +415,11 @@ class AgentRun:
             # Copy the code to the container
             exec_result = self.copy_code_to_container(container, python_code)
             successful_copy = exec_result["success"]
-            copy_message = exec_result["message"]
+            message = exec_result["message"]
             if not successful_copy:
-                copy_message = exec_result["message"]
-                return copy_message
+                return message
 
-            script_name = copy_message
+            script_name = message
 
             # Install dependencies in the container
             dependencies = self.parse_dependencies(python_code)
