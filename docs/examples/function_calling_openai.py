@@ -89,6 +89,9 @@ def get_answer(query):
     return answer
 
 
-# print(get_answer("what's 12312 *321?")) --> 'The answer is 3,952,152 '
-# print (get_answer("what's the average daily move of Apple stock in the last 3 days?")) --> "The average daily movement of Apple's stock over the last 3 days was $2.39."
-# print(get_answer("what's the capital of France?)) --> 'The capital of France is Paris.'
+# 'The answer is 3,952,152 '
+print(get_answer("what's 12312 *321?"))
+# "The average daily movement of Apple's stock over the last 3 days was $2.39."
+print(get_answer("what's the average daily move of Apple stock in the last 3 days?"))
+#'The capital of France is Paris.'
+print(get_answer("what's the capital of France?"))
