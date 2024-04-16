@@ -295,13 +295,16 @@ class AgentRun:
             for dep in dependencies:
                 if dep not in self.dependencies_whitelist:
                     return f"Dependency: {dep} is not in the whitelist."
-
-        exec_log = container.exec_run(cmd="pip list", workdir="/code")
-        exit_code, output = exec_log.exit_code, exec_log.output.decode("utf-8")
-        installed_packages = output.splitlines()
-        installed_packages = [
-            line.split()[0].lower() for line in installed_packages if " " in line
-        ]
+        # if we are doing caching, we need to check if the dependencies are already installed
+        if self.cached_dependencies:
+            exec_log = container.exec_run(cmd="pip list", workdir="/code")
+            exit_code, output = exec_log.exit_code, exec_log.output.decode("utf-8")
+            installed_packages = output.splitlines()
+            installed_packages = [
+                line.split()[0].lower() for line in installed_packages if " " in line
+            ]
+        else:
+            installed_packages = []
 
         for dep in dependencies:
             if dep.lower() in installed_packages:

@@ -313,9 +313,9 @@ print(result)
 
 ## Benchmarks
 
-AgentRun Median execution time is ~220ms without dependencies. Dependency installing is usually the bottleneck and depends on the size of package and if the package has many dependencies.
+AgentRun Median execution time is <200ms without dependencies. Dependency installing is usually the bottleneck and depends on the size of package and if the package has many dependencies as well as caching.
 
-![benchmarks](<assets/benchmarks.png>)
+![benchmarks](<assets/benchmarksv2.1.png>)
 
 
 ## Development
