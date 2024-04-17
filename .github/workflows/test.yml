@@ -24,5 +24,12 @@ jobs:
         pip install '.[test]'
     - name: Run tests
       run: |
-        pytest
+        pytest --cov=agentrun/
+    
+    - name: Upload coverage reports to Codecov
+      uses: codecov/codecov-action@v4.0.1
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        slug: Jonathan-Adly/AgentRun
+    
 
