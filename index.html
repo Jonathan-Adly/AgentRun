@@ -692,11 +692,22 @@
 <h1 id="agentrun-run-ai-generated-code-safely">AgentRun: Run AI Generated Code Safely</h1>
 <p><a href="https://pypi.org/project/agentrun/"><img alt="PyPI" src="https://img.shields.io/pypi/v/agentrun.svg" /></a>
 <a href="https://github.com/jonathan-adly/agentrun/actions/workflows/test.yml"><img alt="Tests" src="https://github.com/jonathan-adly/agentrun/actions/workflows/test.yml/badge.svg" /></a>
+<img alt="Codecov" src="https://img.shields.io/codecov/c/github/jonathan-adly/AgentRun" />
 <a href="https://github.com/jonathan-adly/agentrun/releases"><img alt="Changelog" src="https://img.shields.io/github/v/release/jonathan-adly/agentrun?include_prereleases&amp;label=changelog" /></a>
+<img alt="PyPI - Downloads" src="https://img.shields.io/pypi/dm/agentrun" />
 <a href="https://github.com/jonathan-adly/agentrun/blob/main/LICENSE"><img alt="License" src="https://img.shields.io/badge/license-Apache%202.0-blue.svg" /></a>
+<a href="https://jonathan-adly.github.io/agentrun-docs/"><img alt="MkDocs" src="https://img.shields.io/badge/MkDocs-526CFE?logo=materialformkdocs&amp;logoColor=fff" /></a>
 <a href="https://twitter.com/Jonathan_Adly_"><img alt="Twitter Follow" src="https://img.shields.io/twitter/follow/Jonathan_Adly_?style=social" /></a></p>
 <p>AgentRun is a Python library that makes it easy to run Python code safely from large language models (LLMs) with a single line of code. Built on top of the Docker Python SDK and RestrictedPython, it provides a simple, transparent, and user-friendly API to manage isolated code execution.</p>
 <p>AgentRun automatically installs and uninstalls dependencies with optional caching, limits resource consumption, checks code safety, and sets execution timeouts. It has 97% test coverage with full static typing and only two dependencies.</p>
+<ul>
+<li>
+<p><a href="https://jonathan-adly.github.io/agentrun-docs/">Documentation</a></p>
+</li>
+<li>
+<p><a href="#getting-started">Get started in minutes</a></p>
+</li>
+</ul>
 <h2 id="why">Why?</h2>
 <p>Giving code execution ability to LLMs is a massive upgrade. Consider the following user query: <code>what is 12345 * 54321?</code> or even something more ambitious like <code>what is the average daily move of Apple stock during the last week?</code>? With code execution it is possible for LLMs to answer both accurately by executing code.</p>
 <p>However, executing untrusted code is dangerous and full of potential footguns. For instance, without proper safeguards, an LLM might generate harmful code like this:</p>
