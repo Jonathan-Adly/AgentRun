@@ -297,9 +297,9 @@ def test_dependency_benchmark(benchmark, docker_container):
     result = benchmark(
         execute_code_in_container_benchmark,
         runner=runner,
-        code="import requests\nprint(requests.get('https://example.com').status_code)",
+        code="import arrow\nfixed_date = arrow.get('2023-04-15T12:00:00')\nprint(fixed_date.format('YYYY-MM-DD HH:mm:ss'))",
     )
-    assert result == "200\n"
+    assert result == "2023-04-15 12:00:00\n"
 
 
 def test_exception_benchmark(benchmark, docker_container):
