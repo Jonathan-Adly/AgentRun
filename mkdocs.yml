@@ -15,6 +15,7 @@ nav:
   - Examples: 
     - Groq: "examples/function_calling_groq.ipynb"
     - OpenAI: "examples/function_calling_openai.py"
+    - llama3: "examples/llama3_groq.py"
 
 theme:
   name: material
