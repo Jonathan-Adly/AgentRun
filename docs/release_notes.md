@@ -1,5 +1,10 @@
+## V0.2.3(04-20-2024)
+- Added llama-3 example 
+- Cleaned up API dependencies 
+- Added Caching to the API and increased timeout
+
 ## V0.2.1 (04-17-2024)
-- AgenRun now managed cached dependencies 
+- AgenRun now manages cached dependencies 
 - Improved performance and execution time
 - Dedicated Documentation site
 
