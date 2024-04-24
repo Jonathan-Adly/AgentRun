@@ -80,6 +80,7 @@ theme:
     code: Roboto Mono
    
 plugins:
+  - search
   - mkdocstrings:
   - mkdocs-jupyter:
       ignore_h1_titles: true
