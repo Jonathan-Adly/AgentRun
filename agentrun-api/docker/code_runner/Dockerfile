@@ -1,4 +1,4 @@
-FROM python:3.12.2-slim-bullseye
+FROM ghcr.io/astral-sh/uv:python3.12-bookworm-slim
 
 # Security best practices
 ENV PYTHONDONTWRITEBYTECODE=1 \
@@ -13,5 +13,7 @@ USER pythonuser
 WORKDIR /code
 
 # Optional: Only if you have specific dependencies
-# COPY --chown=appuser:appuser requirements.txt .
-# RUN pip install --user -r requirements.txt
+COPY requirements.txt .
+RUN uv venv && \
+    . .venv/bin/activate && \
+    uv pip install -r requirements.txt 
