@@ -1,3 +1,7 @@
+## V0.2.5(10-21-2024)
+- Added uv as the dependency manager
+- improved performance and execution time through uv
+
 ## V0.2.3(04-20-2024)
 - Added llama-3 example 
 - Cleaned up API dependencies 

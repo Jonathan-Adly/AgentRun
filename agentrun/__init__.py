@@ -76,10 +76,17 @@ class AgentRun:
             and not self.validate_cached_dependencies()
         ):
             raise ValueError("Some cached dependencies are not in the whitelist.")
+        container = self.client.containers.get(self.container_name)
+        command = f"pip install uv"
+        exit_code, output = self.execute_command_in_container(
+            container, command, timeout=120
+        )
+        if exit_code != 0:
+            raise ValueError("Failed to install uv.")
 
         if self.cached_dependencies:
             self.install_cached_dependencies()
-
+        
     class CommandTimeout(Exception):
         """Exception raised when a command execution times out."""
 
@@ -293,7 +300,7 @@ class AgentRun:
                     return f"Dependency: {dep} is not in the whitelist."
         # if we are doing caching, we need to check if the dependencies are already installed
         if self.cached_dependencies:
-            exec_log = container.exec_run(cmd="pip list", workdir="/code")
+            exec_log = container.exec_run(cmd="uv pip list", workdir="/code")
             exit_code, output = exec_log.exit_code, exec_log.output.decode("utf-8")
             installed_packages = output.splitlines()
             installed_packages = [
@@ -305,7 +312,7 @@ class AgentRun:
         for dep in dependencies:
             if dep.lower() in installed_packages:
                 continue
-            command = f"pip install --user {dep}"
+            command = f"uv pip install {dep} --system"
             exit_code, output = self.execute_command_in_container(
                 container, command, timeout=120
             )
@@ -326,7 +333,7 @@ class AgentRun:
             # do not uninstall dependencies that are cached_dependencies
             if dep in self.cached_dependencies:
                 continue
-            command = f"pip uninstall -y {dep}"
+            command = f"uv pip uninstall -y {dep}"
             exit_code, output = self.execute_command_in_container(
                 container, command, timeout=120
             )
