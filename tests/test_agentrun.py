@@ -297,9 +297,10 @@ def test_dependency_benchmark(benchmark, docker_container):
     result = benchmark(
         execute_code_in_container_benchmark,
         runner=runner,
-        code="import numpy as np\nprint(np.array([1, 2, 3]))",
+        # use requests
+        code="import requests\nprint(requests.get('https://example.com').status_code)",
     )
-    assert result == "[1 2 3]\n"
+    assert result == "200\n"
 
 
 def test_exception_benchmark(benchmark, docker_container):
