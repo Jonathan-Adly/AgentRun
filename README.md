@@ -17,6 +17,9 @@ AgentRun automatically installs and uninstalls dependencies with optional cachin
 
 - [Get started in minutes](#getting-started)
 
+> [!NOTE]
+> Looking for a state of the art RAG API? Check out [ColiVara](https://github.com/tjmlabs/ColiVara), also from us.
+
 ## Why?
 
 Giving code execution ability to LLMs is a massive upgrade. Consider the following user query: `what is 12345 * 54321?` or even something more ambitious like `what is the average daily move of Apple stock during the last week?`? With code execution it is possible for LLMs to answer both accurately by executing code.
