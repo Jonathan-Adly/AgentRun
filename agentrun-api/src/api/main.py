@@ -6,8 +6,24 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse
 from pydantic import BaseModel
+from contextlib import asynccontextmanager
 
 from agentrun import AgentRun
+
+# Create a global runner variable
+runner = None
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Initialize the runner when FastAPI starts
+    global runner
+    runner = AgentRun(
+        container_name=os.environ.get("CONTAINER_NAME", "agentrun-api-python-runner-1"),
+        cached_dependencies=["requests", "yfinance"],
+        default_timeout=60 * 5,
+    )
+    yield
 
 
 class CodeSchema(BaseModel):
@@ -18,7 +34,7 @@ class OutputSchema(BaseModel):
     output: str
 
 
-app = FastAPI()
+app = FastAPI(lifespan=lifespan)
 
 # allow all origins
 app.add_middleware(
@@ -44,11 +60,6 @@ async def redirect_docs():
 
 @app.post("/v1/run/", response_model=OutputSchema)
 async def run_code(code_schema: CodeSchema):
-    runner = AgentRun(
-        container_name=os.environ.get("CONTAINER_NAME", "agentrun-api-python_runner-1"),
-        cached_dependencies=["requests", "yfinance"],
-        default_timeout=60 * 5,
-    )
     python_code = code_schema.code
     with ThreadPoolExecutor() as executor:
         future = executor.submit(runner.execute_code_in_container, python_code)

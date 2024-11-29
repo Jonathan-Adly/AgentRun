@@ -77,7 +77,7 @@ class AgentRun:
         ):
             raise ValueError("Some cached dependencies are not in the whitelist.")
         container = self.client.containers.get(self.container_name)
-        command = f"pip install uv"
+        command = "pip install uv"
         exit_code, output = self.execute_command_in_container(
             container, command, timeout=120
         )
@@ -238,7 +238,7 @@ class AgentRun:
 
         try:
             # Compile the code using RestrictedPython with a filename indicating its dynamic nature
-            compiled_code = compile_restricted(
+            compile_restricted(
                 python_code, filename="<dynamic>", mode="exec"
             )
             # Note: Execution step is omitted to only check the code without running it
@@ -350,7 +350,6 @@ class AgentRun:
         Returns:
             Success message or error message
         """
-        result = {"success": False, "message": ""}
         script_name = f"script_{uuid4().hex}.py"
         temp_script_path = os.path.join("/tmp", script_name)
 
@@ -379,7 +378,7 @@ class AgentRun:
         if script_name:
             os.remove(os.path.join("/tmp", script_name))
             container.exec_run(cmd=f"rm /code/{script_name}", workdir="/code")
-            dep_uninstall_result = self.uninstall_dependencies(container, dependencies)
+            self.uninstall_dependencies(container, dependencies)
         return None
 
     def execute_code_in_container(self, python_code: str) -> str:

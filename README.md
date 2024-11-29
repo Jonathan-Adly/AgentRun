@@ -63,7 +63,6 @@ Clone the github repository and start immediately with a standalone REST API.
 ```bash
 git clone https://github.com/Jonathan-Adly/agentrun
 cd agentrun/agentrun-api
-cp .env.example .env.dev
 docker-compose up -d --build
 ```
 
@@ -86,7 +85,11 @@ fetch('http://localhost:8000/v1/run/', {
 
 Or if you prefer the terminal. 
 
-`curl -X POST http://localhost:8000/v1/run/ -H "Content-Type: application/json" -d '{"code": "print(\'hello, world!\')"}'`
+```bash
+curl -X POST http://localhost:8000/v1/run/ \
+-H "Content-Type: application/json" \
+-d '{"code": "print(\"hello, world!\")"}'
+```
 
 ### pip install 
 
@@ -140,7 +143,6 @@ Here is the steps to run the API:
 ```bash
 git clone https://github.com/Jonathan-Adly/agentrun
 cd agentrun/agentrun-api
-cp .env.example .env.dev
 docker-compose up -d --build
 ```
 
@@ -338,12 +340,12 @@ AgentRun Median execution time is <200ms without dependencies and ~400ms with 1 
 To contribute to this library, first checkout the code. Then create a new virtual environment:
 ```bash
 cd agentrun
-python -m venv venv
-source venv/bin/activate
+uv venv
+source .venv/bin/activate
 ```
 Now install the dependencies and test dependencies:
 ```bash
-pip install -e '.[test]'
+uv sync --all-extras
 ```
 To run the tests:
 ```bash

@@ -9,10 +9,9 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     ports:
       - "8000:8000"
-    env_file:
-      - ./.env.dev 
 
   python_runner:
+    container_name: agentrun-api-python-runner-1
     build:
       context: ./
       dockerfile: docker/code_runner/Dockerfile

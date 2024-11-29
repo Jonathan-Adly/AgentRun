@@ -13,3 +13,4 @@ run-venv/
 .mypy_cache/
 .benchmarks/
 site/
+uv.lock
